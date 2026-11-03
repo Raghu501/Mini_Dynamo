@@ -22,13 +22,30 @@ class HashRing:
 #}
     #Every position in self.positions must also exist as a key in self.ring.
 
-    def add(self, node_id: str, position: int) -> None:
+    def add(self, node_id: str, *positions: int) -> None:
         """Add a node at a specific ring position."""
-        if position in self.ring:
+
+        for position in positions:
+         if position in self.ring:
             raise ValueError(f"Position {position} already exists")
-        
-        bisect.insort(self.positions, position)
-        self.ring[position] = node_id  
+
+        for position in positions:
+         bisect.insort(self.positions, position)
+         self.ring[position] = node_id  
+
+
+    def distribution(self) -> dict:
+        """Count how many positions from 0 to 999 belong to each node."""
+
+        dist = {}
+
+        for position in range(1000):
+            node = self.lookup(position)
+
+            if node:
+                dist[node] = dist.get(node, 0) + 1
+
+        return dist
 
     def remove(self, node_id: str) -> None:
         # TODO: remove all positions belonging to node_id
@@ -61,11 +78,15 @@ def main():
         parts = line.split()
         cmd = parts[0]
         if cmd == 'ADD':
-            ring.add(parts[1], int(parts[2]))
+            ring.add(parts[1], *map(int, parts[2:]))
         elif cmd == 'REMOVE':
             ring.remove(parts[1])
         elif cmd == 'LOOKUP':
             print(ring.lookup(int(parts[1])))
+        elif cmd == 'DISTRIBUTION':
+            dist = ring.distribution()
+            for node in sorted(dist):
+                print(f'{node}:{dist[node]}')
 
 if __name__ == '__main__':
     main()
