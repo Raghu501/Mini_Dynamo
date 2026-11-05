@@ -69,6 +69,15 @@ class HashRing:
             index=0
 
         return self.ring[self.positions[index]]
+
+    def owner(self, key_pos: int) -> str:
+        """Return the node that currently owns this key position."""
+        if not self.positions:
+            return ''
+        idx = bisect.bisect_left(self.positions, key_pos)
+        if idx == len(self.positions):
+            idx = 0
+        return self.ring[self.positions[idx]]
 def main():
     ring = HashRing()
     for line in sys.stdin:
